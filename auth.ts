@@ -15,10 +15,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const user = await prisma.admin_usuarios.findFirst({
           where: { usuario: credentials.usuario as string },
         })
-        if (!user) return null
-        const valid = await bcrypt.compare(credentials.senha as string, user.senha)
-        if (!valid) return null
-        return { id: String(user.id), name: user.usuario, email: null }
+        // Roda bcrypt mesmo quando usuário não existe para evitar timing attack
+        const DUMMY = "$2b$12$invalidhashfortimingequalizatio"
+        const valid = await bcrypt.compare(credentials.senha as string, user?.senha ?? DUMMY)
+        if (!user || !valid) return null
+        return { id: String(user.id), name: user.usuario }
       },
     }),
   ],
