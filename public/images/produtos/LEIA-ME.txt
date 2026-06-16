@@ -1,0 +1,19 @@
+PASTA DE IMAGENS DOS PRODUTOS
+==============================
+
+Coloque aqui as fotos dos produtos que aparecem no carrossel da home.
+
+Nomenclatura sugerida (deve bater com o campo 'imagem' em produtos_destaque.php):
+  cordoes-barbantes.jpg
+  latex.jpg
+  botoes.jpg
+  rolico.jpg
+  ponteiras.jpg
+  arruelas.jpg
+  enfeites.jpg
+  elastico-mascara.jpg
+  ziper-ykk.jpg
+  linhas-poliester.jpg
+
+Formatos aceitos: JPG, PNG, WebP
+Tamanho recomendado: 600x600 px (quadrado), máximo 200 KB por imagem
