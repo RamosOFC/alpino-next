@@ -22,24 +22,39 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const { error } = await requireAuth()
   if (error) return error
-  const body = await req.json()
-  const produto = await prisma.produtos.create({ data: body })
-  return NextResponse.json(produto, { status: 201 })
+  try {
+    const body = await req.json()
+    const produto = await prisma.produtos.create({ data: body })
+    return NextResponse.json(produto, { status: 201 })
+  } catch (e: unknown) {
+    console.error(e)
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+  }
 }
 
 export async function PUT(req: Request) {
   const { error } = await requireAuth()
   if (error) return error
-  const body = await req.json()
-  const { id, ...data } = body
-  const produto = await prisma.produtos.update({ where: { id }, data })
-  return NextResponse.json(produto)
+  try {
+    const body = await req.json()
+    const { id, ...data } = body
+    const produto = await prisma.produtos.update({ where: { id }, data })
+    return NextResponse.json(produto)
+  } catch (e: unknown) {
+    console.error(e)
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+  }
 }
 
 export async function DELETE(req: Request) {
   const { error } = await requireAuth()
   if (error) return error
-  const { id } = await req.json()
-  await prisma.produtos.delete({ where: { id } })
-  return NextResponse.json({ ok: true })
+  try {
+    const { id } = await req.json()
+    await prisma.produtos.delete({ where: { id } })
+    return NextResponse.json({ ok: true })
+  } catch (e: unknown) {
+    console.error(e)
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+  }
 }

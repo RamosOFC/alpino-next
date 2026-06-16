@@ -12,15 +12,20 @@ export async function GET() {
 export async function PUT(req: Request) {
   const { error } = await requireAuth()
   if (error) return error
-  const body: Record<string, string> = await req.json()
-  await Promise.all(
-    Object.entries(body).map(([chave, valor]) =>
-      prisma.configuracoes.upsert({
-        where: { chave },
-        update: { valor },
-        create: { chave, valor },
-      })
+  try {
+    const body: Record<string, string> = await req.json()
+    await Promise.all(
+      Object.entries(body).map(([chave, valor]) =>
+        prisma.configuracoes.upsert({
+          where: { chave },
+          update: { valor },
+          create: { chave, valor },
+        })
+      )
     )
-  )
-  return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true })
+  } catch (e: unknown) {
+    console.error(e)
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+  }
 }

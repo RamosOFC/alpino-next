@@ -14,30 +14,45 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const { error } = await requireAuth()
   if (error) return error
-  const body = await req.json()
-  const max = await prisma.depoimentos.aggregate({ _max: { ordem: true } })
-  const depoimento = await prisma.depoimentos.create({
-    data: {
-      ...body,
-      ordem: body.ordem ?? (max._max.ordem ?? 0) + 1,
-    },
-  })
-  return NextResponse.json(depoimento, { status: 201 })
+  try {
+    const body = await req.json()
+    const max = await prisma.depoimentos.aggregate({ _max: { ordem: true } })
+    const depoimento = await prisma.depoimentos.create({
+      data: {
+        ...body,
+        ordem: body.ordem ?? (max._max.ordem ?? 0) + 1,
+      },
+    })
+    return NextResponse.json(depoimento, { status: 201 })
+  } catch (e: unknown) {
+    console.error(e)
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+  }
 }
 
 export async function PUT(req: Request) {
   const { error } = await requireAuth()
   if (error) return error
-  const body = await req.json()
-  const { id, ...data } = body
-  const depoimento = await prisma.depoimentos.update({ where: { id }, data })
-  return NextResponse.json(depoimento)
+  try {
+    const body = await req.json()
+    const { id, ...data } = body
+    const depoimento = await prisma.depoimentos.update({ where: { id }, data })
+    return NextResponse.json(depoimento)
+  } catch (e: unknown) {
+    console.error(e)
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+  }
 }
 
 export async function DELETE(req: Request) {
   const { error } = await requireAuth()
   if (error) return error
-  const { id } = await req.json()
-  await prisma.depoimentos.delete({ where: { id } })
-  return NextResponse.json({ ok: true })
+  try {
+    const { id } = await req.json()
+    await prisma.depoimentos.delete({ where: { id } })
+    return NextResponse.json({ ok: true })
+  } catch (e: unknown) {
+    console.error(e)
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+  }
 }

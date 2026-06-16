@@ -10,16 +10,22 @@ export async function GET() {
 export async function PUT(req: Request) {
   const { error } = await requireAuth()
   if (error) return error
-  const body = await req.json()
-  await Promise.all(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    body.map((row: any) =>
-      prisma.seo_paginas.upsert({
-        where: { pagina: row.pagina },
-        update: row,
-        create: row,
+  try {
+    const body = await req.json()
+    await Promise.all(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      body.map((row: any) => {
+        const { pagina, ...campos } = row
+        return prisma.seo_paginas.upsert({
+          where: { pagina },
+          update: campos,
+          create: row,
+        })
       })
     )
-  )
-  return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true })
+  } catch (e: unknown) {
+    console.error(e)
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+  }
 }
