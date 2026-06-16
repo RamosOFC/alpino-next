@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model admin_usuarios {
+  id        Int       @id @default(autoincrement())
+  usuario   String    @unique(map: "usuario") @db.VarChar(100)
+  senha     String    @db.VarChar(255)
+  criado_em DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model banners {
+  id        Int       @id @default(autoincrement())
+  imagem    String    @db.VarChar(255)
+  link      String?   @default("") @db.VarChar(500)
+  ordem     Int?      @default(0)
+  ativo     Int?      @default(1) @db.TinyInt
+  criado_em DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model cartelas {
+  id            Int     @id @default(autoincrement())
+  titulo        String  @db.VarChar(200)
+  arquivo       String  @db.VarChar(255)
+  nome_download String? @default("") @db.VarChar(255)
+  ordem         Int?    @default(0)
+  ativo         Int?    @default(1) @db.TinyInt
+}
+
+model categorias {
+  id            Int             @id @default(autoincrement())
+  nome          String          @db.VarChar(150)
+  slug          String          @unique(map: "slug") @db.VarChar(150)
+  ordem         Int?            @default(0)
+  ativo         Int?            @default(1) @db.TinyInt
+  subcategorias subcategorias[]
+}
+
+model configuracoes {
+  chave     String  @id @db.VarChar(100)
+  valor     String  @db.Text
+  descricao String? @default("") @db.VarChar(255)
+}
+
+model depoimentos {
+  id       Int     @id @default(autoincrement())
+  nome     String  @db.VarChar(100)
+  cargo    String? @default("") @db.VarChar(150)
+  texto    String  @db.Text
+  estrelas Int?    @default(5) @db.TinyInt
+  ordem    Int?    @default(0)
+  ativo    Int?    @default(1) @db.TinyInt
+}
+
+model marcas {
+  id     Int     @id @default(autoincrement())
+  nome   String  @db.VarChar(100)
+  imagem String  @db.VarChar(255)
+  ordem  Int?    @default(0)
+  ativo  Int?    @default(1) @db.TinyInt
+  link   String? @default("") @db.VarChar(500)
+}
+
+model menu_items {
+  id           Int              @id @default(autoincrement())
+  label        String           @db.VarChar(100)
+  url          String           @db.VarChar(500)
+  tipo         menu_items_tipo? @default(nav)
+  target_blank Int?             @default(0) @db.TinyInt
+  ordem        Int?             @default(0)
+  ativo        Int?             @default(1) @db.TinyInt
+  target       String?          @default("_self") @db.VarChar(10)
+}
+
+model page_views {
+  id           Int       @id @default(autoincrement())
+  page         String?   @default("") @db.VarChar(200)
+  referrer     String?   @default("") @db.VarChar(500)
+  utm_source   String?   @default("") @db.VarChar(100)
+  utm_medium   String?   @default("") @db.VarChar(100)
+  utm_campaign String?   @default("") @db.VarChar(100)
+  utm_content  String?   @default("") @db.VarChar(100)
+  event_type   String?   @default("pageview") @db.VarChar(50)
+  ip_hash      String?   @default("") @db.VarChar(64)
+  user_agent   String?   @default("") @db.VarChar(300)
+  criado_em    DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([criado_em], map: "idx_criado")
+  @@index([page], map: "idx_page")
+  @@index([utm_source, utm_medium, utm_campaign], map: "idx_utm")
+}
+
+model produtos {
+  id              Int            @id @default(autoincrement())
+  subcategoria_id Int?
+  nome            String         @db.VarChar(200)
+  categoria_nome  String?        @default("") @db.VarChar(150)
+  descricao       String?        @db.Text
+  imagem          String?        @default("") @db.VarChar(255)
+  destaque        Int?           @default(0) @db.TinyInt
+  ordem           Int?           @default(0)
+  ativo           Int?           @default(1) @db.TinyInt
+  criado_em       DateTime?      @default(now()) @db.Timestamp(0)
+  subcategorias   subcategorias? @relation(fields: [subcategoria_id], references: [id], onUpdate: NoAction, map: "produtos_ibfk_1")
+
+  @@index([subcategoria_id], map: "subcategoria_id")
+}
+
+model seo_paginas {
+  id        Int     @id @default(autoincrement())
+  pagina    String  @unique(map: "pagina") @db.VarChar(50)
+  titulo    String? @default("") @db.VarChar(200)
+  descricao String? @default("") @db.VarChar(300)
+  og_image  String? @default("") @db.VarChar(255)
+}
+
+model subcategorias {
+  id           Int        @id @default(autoincrement())
+  categoria_id Int
+  nome         String     @db.VarChar(150)
+  descricao    String?    @db.Text
+  ordem        Int?       @default(0)
+  ativo        Int?       @default(1) @db.TinyInt
+  produtos     produtos[]
+  categorias   categorias @relation(fields: [categoria_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "subcategorias_ibfk_1")
+
+  @@index([categoria_id], map: "categoria_id")
+}
+
+enum menu_items_tipo {
+  nav
+  footer
+}
