@@ -23,7 +23,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
   return (
     <>
-      <Navbar items={items as any} wpp={wpp} />
+      <Navbar items={items.map(i => ({ id: i.id, label: i.label, url: i.url, target: i.target ?? "_self" }))} wpp={wpp} />
       <main>{children}</main>
       <Footer />
     </>
