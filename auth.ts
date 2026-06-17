@@ -16,8 +16,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           where: { usuario: credentials.usuario as string },
         })
         // Roda bcrypt mesmo quando usuário não existe para evitar timing attack
-        const DUMMY = "$2b$12$invalidhashfortimingequalizatio"
-        const valid = await bcrypt.compare(credentials.senha as string, user?.senha ?? DUMMY)
+        const DUMMY = "$2b$12$4CW4SldTrR5l25HUsYEVq.bVeJPahlUyCP2osdUybS.jeeWazPnte"
+        let valid = false
+        try {
+          valid = await bcrypt.compare(credentials.senha as string, user?.senha ?? DUMMY)
+        } catch { valid = false }
         if (!user || !valid) return null
         return { id: String(user.id), name: user.usuario }
       },
