@@ -6,18 +6,23 @@ declare global {
   var prismaClient: PrismaClient | undefined
 }
 
-function createPrismaClient(): PrismaClient {
+function createClient(): PrismaClient {
   const url = process.env.DATABASE_URL
   if (!url) throw new Error("DATABASE_URL env var is not set")
-  // PrismaMariaDb accepts a mariadb:// connection string; DATABASE_URL uses mysql://
-  const mariadbUrl = url.replace(/^mysql:\/\//, "mariadb://")
-  const adapter = new PrismaMariaDb(mariadbUrl)
+  const adapter = new PrismaMariaDb(url.replace(/^mysql:\/\//, "mariadb://"))
   return new PrismaClient({ adapter })
 }
 
-export const prisma: PrismaClient =
-  global.prismaClient ?? createPrismaClient()
-
-if (process.env.NODE_ENV !== "production") {
-  global.prismaClient = prisma
+function getClient(): PrismaClient {
+  if (!global.prismaClient) {
+    global.prismaClient = createClient()
+  }
+  return global.prismaClient
 }
+
+// Proxy lazy: não instancia o cliente até a primeira chamada real
+export const prisma = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    return getClient()[prop as keyof PrismaClient]
+  },
+})
